@@ -1,0 +1,9 @@
+#!/bin/bash
+if [ "$1" == "" ]; then
+    location=london
+else
+    location=$1
+fi
+
+curl wttr.in/$location
+
