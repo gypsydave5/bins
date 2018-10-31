@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+// js2json
+// converts a JavaScript object to JSON
+
+const Transform = require('stream').Transform
+const parse = obj => Function(`"use strict";return (${obj})`)()
+
+class Js2Json extends Transform {
+  constructor () {
+    super()
+    this.buffs = []
+  }
+
+  _transform (chunk, enc, next) {
+    this.buffs.push(chunk)
+    next()
+  }
+
+  _flush (next) {
+    const jsString = Buffer.concat(this.buffs).toString()
+    const object = parse(jsString)
+    this.push(JSON.stringify(object))
+    next()
+  }
+}
+
+process.stdin.pipe(new Js2Json()).pipe(process.stdout)
