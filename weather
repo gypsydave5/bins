@@ -1,9 +1,8 @@
-#!/bin/bash
-if [ "$1" == "" ]; then
-    location=london
-else
+#!/bin/sh
+if [ "$1" != "" ]; then
     location=$1
+else
+    location=london
 fi
 
 curl wttr.in/$location
-
