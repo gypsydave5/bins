@@ -1,0 +1,3 @@
+#!/bin/bash
+
+9 acme -f /mnt/font/'FiraCode-Retina'/16a/font
