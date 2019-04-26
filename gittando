@@ -1,0 +1,73 @@
+#!/bin/bash
+
+################################################################################
+#                                   GITTANDO                                   #
+################################################################################
+#
+# A super dumb command for trunk based development in git
+#
+# Stashes your current working tree's uncommitted files (if there's anything
+# there), pulls the upstream, runs whatever test you provided as an argument.
+#
+# If it's successful, it pushes. In either case, it pops whatever it stashes
+# back out again and will exit with a 1 if the test failed
+#
+# i.e. `gittando ./build -e -a` will run the test command `./build -e a` after
+# it has pulled to test whether the integration with the trunk has been successful.
+
+test_command="$@"
+printf "Will test integration with upstream using command: $test_command\n"
+
+stash_message="gittando command stash - $RANDOM"
+if git stash push -u -m "$stash_message"; then
+  stash_reference=$(git stash list | grep "$stash_message" | cut -d: -f1) || failure=true
+  printf "stashed uncommitted changes to $stash_reference : $stash_message\n"
+else
+  printf "No uncommitted changes to stash\n"
+fi
+
+git pull -r
+
+if $test_command; then
+  failure=false
+  printf "integration test with upstream successful... pushing... \n"
+  git push || failure=true
+else
+  failure=true
+  printf "integration test with upstream FAILED.\n"
+fi
+
+if [ -z ${stash_reference+x} ];then
+  printf "popping stash $stash_reference : $stash_message\n"
+  git stash apply $stash_reference &&
+    git stash drop $stash_reference ||
+    failure=true
+else
+  printf "no uncommitted changes to pop\n"
+fi
+
+if $failure;then
+  exit 1
+fi
+
+# GITTANDO - a super dumb command for trunk based development in git
+# Copyright © 2018 David Wickes
+
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+# OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
