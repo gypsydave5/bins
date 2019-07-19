@@ -1,0 +1,36 @@
+#!/bin/bash
+################################################################################
+#                                    bconv                                     #
+################################################################################
+#
+# converts integers from one base to another
+# defaults to base 10 for input and base 10 for output
+# bases in the range of 2 to 16 only
+
+i_flag='10'
+o_flag='10'
+
+print_usage() {
+  printf "Usage: bconv [-i input_base] [-o output_base] number\n"
+}
+
+while getopts ':i:o:h' flag; do
+  case "${flag}" in
+    i) i_flag="$OPTARG";;
+    o) o_flag="$OPTARG";;
+    h) print_usage
+       exit 0 ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if [ "$1" == "" ]; then
+  print_usage
+  exit 1
+fi
+
+# clean the input - dc can only accept upper case letters for numbers
+input=$(echo $1| tr '[:lower:]' '[:upper:]')
+
+# use dc(1) for the calculation
+dc -e "$o_flag o $i_flag i $input p"
