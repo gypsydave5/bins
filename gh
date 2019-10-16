@@ -1,0 +1,19 @@
+
+git rev-parse 2>/dev/null
+
+if [[ $? != 0 ]]
+then
+    echo "Not a git repository."
+    exit 1
+fi
+
+remote_url="remote.origin.url"
+
+giturl=$(git config --get $remote_url)
+giturl=${giturl/git\@github\.com\:/https://github.com/}
+giturl=${giturl%\.git}
+
+root=$(git rev-parse --show-toplevel | sed -e 's/\//\\\//g')
+path=$(echo ${PWD} | sed -e "s/$root//")
+open ${giturl}/tree/master${path}/$1
+exit 0
