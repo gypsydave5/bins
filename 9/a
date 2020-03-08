@@ -1,3 +1,2 @@
-#!/bin/bash
-
-9 acme -f /mnt/font/'FiraCode-Retina'/16a/font
+#!/usr/bin/env 9 rc
+9 acme -f /mnt/font/GoRegular/16a/font -F /mnt/font/GoMono/16a/font $*
